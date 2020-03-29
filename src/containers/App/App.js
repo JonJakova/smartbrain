@@ -14,30 +14,28 @@ const appKey = new Clarifai.App({
 });
 
 class App extends Component {
-  constructor(props) {
+  constructor() {
     super();
     this.state = {
       input: '',
-      imgUrl: ''
+      imgUrl: '',
+      box: {}
     };
   }
 
   onChangeLink = (event) => {
-    this.setState({input: event.target.value})
+    this.setState({ input: event.target.value })
     console.log(this.state.input);
   }
 
   onClickDetect = () => {
-    this.setState({imgUrl: this.state.input}, () => {
-      appKey.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.imgUrl)
-      .then(function (response) {
-        console.log(response.outputs[0].data.regions[0].region_info.bounding_box);
-      },
-      function (err) {
-        //error handling
-      })
-    });
-    
+    this.setState({ imgUrl: this.state.input },
+      () => {
+        appKey.models
+          .predict(Clarifai.FACE_DETECT_MODEL, this.state.imgUrl)
+          .then(response => this._setFaceBox(this._calculateFaceCoordinates(response)))
+          .catch(err => console.log(err))
+      });
   }
 
   render() {
@@ -47,12 +45,29 @@ class App extends Component {
         <Navigator />
         <Logo />
         <Rank />
-        <ImageLinkForm onChangeLink={this.onChangeLink} onClickDetect={this.onClickDetect}/>
-        <FaceRecognition imgUrl={this.state.imgUrl}/>
-        
+        <ImageLinkForm onChangeLink={this.onChangeLink} onClickDetect={this.onClickDetect} />
+        <FaceRecognition box={this.state.box} imgUrl={this.state.imgUrl} />
       </div>
     );
   };
+
+  _calculateFaceCoordinates = (data) => {
+    const face = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById('faceId');
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return {
+      leftCol: face.left_col * width,
+      topRow: face.top_row * height,
+      rightCol: width - (face.right_col * width),
+      bottomRow: height - (face.bottom_row * height)
+    }
+  }
+
+  _setFaceBox = (box) => {
+    this.setState({ box: box });
+    console.log(box);
+  }
 
 }
 
