@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
 
-function Rank() {
+function Rank({name, entries}) {
     return (
         <Fragment>
             <div className='white f3'>
-                {'Current rank is'}
+            {`${name}, your current entry count is...`}
             </div>
             <div className='white f1'>
-                {'#5'}
+                {entries}
             </div>
         </Fragment>
     );

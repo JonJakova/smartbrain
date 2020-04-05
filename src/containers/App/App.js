@@ -1,37 +1,69 @@
 import React, { Component } from 'react';
 import './App.css';
+import { particleOption } from '../../components/configurations/ParticleConfig';
+import {keys} from '../../components/configurations/ApiKeys';
 import Navigator from '../../components/Navigator/Navigator';
 import Logo from '../../components/Logo/Logo';
 import ImageLinkForm from '../../components/ImageLinkForm/ImageLinkForm';
 import Rank from '../../components/Rank/Rank';
 import Clarifai from 'clarifai';
 import Particles from 'react-particles-js';
-import { particleOption } from '../../components/configurations/ParticleConfig';
 import FaceRecognition from '../../components/FaceRecognition/FaceRecognition';
 import Signin from '../../components/Signin/Signin';
 import Register from '../../components/Register/Register';
 
 const appKey = new Clarifai.App({
-  apiKey: 'e61e419baf054bf7b286b0e321eab815'
+  apiKey: keys.clarifai
 });
 
 class App extends Component {
   constructor() {
     super();
-    this.state = {
+    this.state =
+    {
       input: '',
       imgUrl: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user:
+      {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+      }
     };
   }
 
-  onRouteChange = (route) => {    
-    if (route === 'signout'){
+  componentDidMount() {
+    fetch('http://localhost:3001')
+      .then(resp => resp.json())
+      .then(console.log)
+  }
+
+  updateUser = (data) => {    
+    this.setState(
+      {
+        user:
+        {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          entries: data.entries,
+          joined: data.joined
+        }
+      }
+    )
+    console.log('update User', data);
+  }
+
+  onRouteChange = (route) => {
+    if (route === 'signout') {
       this.setState({ isSignedIn: false })
     }
-    else if(route === 'home'){
+    else if (route === 'home') {
       this.setState({ isSignedIn: true })
     }
     this.setState({ route: route })
@@ -47,7 +79,27 @@ class App extends Component {
       () => {
         appKey.models
           .predict(Clarifai.FACE_DETECT_MODEL, this.state.imgUrl)
-          .then(response => this._setFaceBox(this._calculateFaceCoordinates(response)))
+          .then(response => 
+            {
+              if(response){
+                fetch('http://localhost:3001/image',
+                {
+                  method: 'PUT',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify(
+                    {
+                      id: this.state.user.id
+                    }
+                  )
+                })
+                .then(resp => resp.json())
+                .then(count => 
+                  {
+                    this.setState(Object.assign(this.state.user, {entries: count}));
+                  })
+              }
+            this._setFaceBox(this._calculateFaceCoordinates(response))
+            })
           .catch(err => console.log(err))
       });
   }
@@ -62,18 +114,18 @@ class App extends Component {
           route === 'home'
             ? <div>
               <Logo />
-              <Rank />
+              <Rank name={this.state.user.name} entries={this.state.user.entries} />
               <ImageLinkForm onChangeLink={this.onChangeLink} onClickDetect={this.onClickDetect} />
               <FaceRecognition box={this.state.box} imgUrl={this.state.imgUrl} />
             </div>
             : (route === 'signin'
               ? <div>
                 <Logo />
-                <Signin onRouteChange={this.onRouteChange} />
+                <Signin updateUser={this.updateUser} onRouteChange={this.onRouteChange} />
               </div>
               : <div>
                 <Logo />
-                <Register onRouteChange={this.onRouteChange} />
+                <Register updateUser={this.updateUser} onRouteChange={this.onRouteChange} />
               </div>)
         }
       </div>
