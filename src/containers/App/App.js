@@ -56,7 +56,6 @@ class App extends Component {
         }
       }
     )
-    console.log('update User', data);
   }
 
   onRouteChange = (route) => {
@@ -71,7 +70,6 @@ class App extends Component {
 
   onChangeLink = (event) => {
     this.setState({ input: event.target.value })
-    console.log(this.state.input);
   }
 
   onClickDetect = () => {
@@ -165,7 +163,6 @@ class App extends Component {
 
   _setFaceBox = (box) => {
     this.setState({ box: box });
-    console.log(box);
   }
 
 }
