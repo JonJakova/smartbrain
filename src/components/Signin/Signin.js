@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import './Signin.css'
+//import './Signin.css'
 
 class Signin extends React.Component {
 
@@ -42,7 +42,6 @@ class Signin extends React.Component {
     }
 
     render() {
-        const { onRouteChange } = this.props;
         return (
             <Fragment>
                 <div>
@@ -70,9 +69,6 @@ class Signin extends React.Component {
                                 </fieldset>
                                 <div className="">
                                     <input onClick={this.onSubmitSignin} className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" value="Sign in" />
-                                </div>
-                                <div className="lh-copy mt3">
-                                    <p onClick={() => onRouteChange('register')} className="b br3 f6 link dim black db pointer">Register</p>
                                 </div>
                             </div>
                         </main>
