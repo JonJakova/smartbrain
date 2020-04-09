@@ -32,12 +32,6 @@ class App extends Component {
     this.state = initialState;
   }
 
-  componentDidMount() {
-    fetch('http://localhost:3001')
-      .then(resp => resp.json())
-      .then(console.log)
-  }
-
   updateUser = (data) => {
     this.setState(
       {
@@ -69,7 +63,7 @@ class App extends Component {
 
   onClickDetect = () => {
     this.setState({imgUrl: this.state.input});
-      fetch('http://localhost:3001/imageurl', {
+      fetch('https://rocky-hamlet-85621.herokuapp.com/imageurl', {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -79,7 +73,7 @@ class App extends Component {
       .then(response => response.json())
       .then(response => {
         if (response) {
-          fetch('http://localhost:3001/image', {
+          fetch('https://rocky-hamlet-85621.herokuapp.com/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
